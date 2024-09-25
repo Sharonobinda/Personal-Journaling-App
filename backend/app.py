@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_cors import CORS
+from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
@@ -10,10 +13,10 @@ from models import db, User, JournalEntry
 app = Flask(__name__)
 
 # Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@localhost/journaling_db'
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///journaling.db"
 app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['JWT_SECRET_KEY'] = 'jwtsecretkey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -21,10 +24,17 @@ app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
 app.config['MAIL_PASSWORD'] = 'your-email-password'
 app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
 
-db.init_app(app)
+with app.app_context():
+    # Serializer for generating secure tokens
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+# Initialize extensions
 jwt = JWTManager(app)
+CORS(app)
+migrate = Migrate(app, db)
+db.init_app(app)
+bcrypt = Bcrypt(app)
 mail = Mail(app)
-serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # User Registration
 @app.route('/register', methods=['POST'])
