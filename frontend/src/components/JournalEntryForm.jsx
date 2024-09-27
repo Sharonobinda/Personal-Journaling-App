@@ -7,31 +7,10 @@ const JournalEntryForm = ({ onEntryCreated }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
-
-        fetch('/journal', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ title, content, category }),
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Error creating journal entry');
-            }
-            return response.json();
-        })
-        .then(() => {
-            onEntryCreated(); // Notify parent to refresh journal list
-            setTitle('');
-            setContent('');
-            setCategory('');
-        })
-        .catch((error) => {
-            console.error('Error creating journal entry:', error);
-        });
+        onEntryCreated(title, content, category); // Pass parameters to the parent
+        setTitle('');
+        setContent('');
+        setCategory('');
     };
 
     return (
