@@ -1,102 +1,187 @@
-// src/context/UserContext.jsx
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
-// Create the context
 export const UserContext = createContext();
 
-// Create a provider component
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // Holds the user data or null if not logged in
+  const [auth_token, setAuth_token] = useState(() =>
+    localStorage.getItem('access_token') ? localStorage.getItem('access_token') : null
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [current-user, setCurrent-user] = useState(null);
+  const [onChange, setOnChange] = useState(false);
+  const nav = useNavigate();
 
-    // Login function
-    const login = (email, password, callback) => {
-        fetch('http://127.0.0.1:5000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
+  // Register user
+  const register = (username, email, password, onSuccess) => {
+    fetch(`http://127.0.0.1:5000/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, email, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((err) => {
+            throw new Error(err.error || 'Network response was not ok');
+          });
+        }
+        return response.json();
+      })
+      .then((res) => {
+        if (res.message) {
+          toast.success(res.message);
+          if (onSuccess) onSuccess();
+        } else {
+          toast.error(res.error || 'Registration failed');
+        }
+      })
+      .catch((error) => {
+        toast.error(`Registration failed: ${error.message}`);
+      });
+  };
+
+  // Login user
+  const login = (email, password, onSuccess) => {
+    fetch(`http://127.0.0.1:5000/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((err) => {
+            throw new Error(err.error || 'Network response was not ok');
+          });
+        }
+        return response.json();
+      })
+      .then((res) => {
+        if (res.access_token) {
+          localStorage.setItem('access_token', res.access_token);
+          setAuth_token(res.access_token);
+          setIsAuthenticated(true);
+          toast.success('Logged in successfully');
+          if (onSuccess) onSuccess();
+        } else {
+          toast.error(res.error || 'Login failed');
+        }
+      })
+      .catch((error) => {
+        toast.error(`Login failed: ${error.message}`);
+      });
+  };
+
+  // Update user profile
+  const update_user = (username, password) => {
+    fetch(`http://127.0.0.1:5000/update-profile`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+      headers: {
+        'Content-type': 'application/json',
+        Authorization: `Bearer ${auth_token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((res) => {
+        if (res.success) {
+          toast.success(res.success);
+          setCurrent-user((prevState) => ({
+            ...prevState,
+            username,
+            password,
+          }));
+        } else if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.error('An error occurred');
+        }
+      })
+      .catch((error) => {
+        toast.error(`Update failed: ${error.message}`);
+      });
+  };
+
+  // Logout function
+  const logout = () => {
+    fetch(`http://127.0.0.1:5000/logout`, {
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json',
+        Authorization: `Bearer ${auth_token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((res) => {
+        if (res.success) {
+          localStorage.removeItem('access_token');
+          setAuth_token(null);
+          setIsAuthenticated(false);
+          setCurrent-user(null);
+          setOnChange(!onChange);
+          toast.success(res.success);
+          nav('/login');
+        } else if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.error('An error occurred');
+        }
+      })
+      .catch((error) => {
+        toast.error(`Logout failed: ${error.message}`);
+      });
+  };
+
+  useEffect(() => {
+    if (auth_token) {
+      fetch(`http://127.0.0.1:5000/current-user`, {
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${auth_token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.email) {
+            setCurrent-user(res);
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('access_token');
+            setAuth_token(null);
+            setIsAuthenticated(false);
+            setCurrent-user(null);
+            nav('/login');
+          }
         })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Login failed!');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setUser(data.user); // Assuming the response contains user data
-                localStorage.setItem('token', data.token); // Store token if needed
-                callback(); // Navigate after successful login
-            })
-            .catch((error) => {
-                console.error('Error during login:', error);
-                // Optionally show a toast notification or error message
-            });
-    };
+        .catch((error) => {
+          toast.error(`Fetching current user failed: ${error.message}`);
+        });
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [auth_token, onChange, nav]);
 
-    // Registration function
-    const register = (username, email, password, callback) => {
-        fetch('http://127.0.0.1:5000/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, email, password }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Registration failed!');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setUser(data.user); // Assuming the response contains user data
-                localStorage.setItem('token', data.token); // Store token if needed
-                callback(); // Navigate after successful registration
-            })
-            .catch((error) => {
-                console.error('Error during registration:', error);
-                // Optionally show a toast notification or error message
-            });
-    };
+  const contextData = {
+    auth_token,
+    current-user,
+    setCurrent-user,
+    register,
+    login,
+    update_user,
+    logout,
+    isAuthenticated,
+  };
 
-    // Logout function
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('token'); // Remove token on logout
-        // Optionally, navigate to login or home page
-    };
-
-    // Update profile function
-    const updateProfile = (updatedData, callback) => {
-        const token = localStorage.getItem('token'); // Get the token for authorization
-        fetch('http://127.0.0.1:5000/update-profile', {
-            method: 'PUT', // Assuming you're using PUT for updating
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`, // Add token to headers
-            },
-            body: JSON.stringify(updatedData),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Profile update failed!');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setUser(data.user); // Update the user state with new data
-                callback(); // Optionally navigate or show success message
-            })
-            .catch((error) => {
-                console.error('Error during profile update:', error);
-                // Optionally show a toast notification or error message
-            });
-    };
-
-    return (
-        <UserContext.Provider value={{ user, login, register, logout, updateProfile }}>
-            {children}
-        </UserContext.Provider>
-    );
+  return (
+    <UserContext.Provider value={contextData}>
+      {children}
+    </UserContext.Provider>
+  );
 };

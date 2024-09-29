@@ -32,8 +32,8 @@ const Layout = () => {
                         {/* Only show Journals if the user is logged in */}
                         {user && (
                             <li>
-                                <Link to="/journals" onClick={closeMenu} className="text-bold text-xl block py-2 px-4 rounded hover:text-gray-400 hover:bg-green-800 dark:text-green-900">
-                                    Journals
+                                <Link to="/journal" onClick={closeMenu} className="text-bold text-xl block py-2 px-4 rounded hover:text-gray-400 hover:bg-green-800 dark:text-green-900">
+                                    Journal
                                 </Link>
                             </li>
                         )}

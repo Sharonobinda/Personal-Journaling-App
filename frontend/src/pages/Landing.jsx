@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import journalImage from '../images/journal image.jpg'; // Adjust the path as necessary
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import journalImage from '../images/journal image.jpg';
+import { UserContext } from '../context/UserContext';
+import { toast } from 'react-toastify';
 
 const Landing = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle login logic here
+    if (login) {
+      login(email, password, () => {
+        navigate('/journals'); // Navigate to the dashboard after successful login
+      });
+
+      // Clear form fields
+      setEmail("");
+      setPassword("");
+    } else {
+      toast.error("Login function not available");
+    }
   };
 
   return (

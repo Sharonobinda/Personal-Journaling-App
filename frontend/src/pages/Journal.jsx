@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
-import { JournalContext } from '../context/JournalContext';
+import { JournalContext } from '../context/JournalContext';  // This will now work
 import JournalEntryForm from '../components/JournalEntryForm';
 import JournalList from '../components/JournalList';
 
 const JournalPage = () => {
-    const { journals, createJournalEntry } = useContext(JournalContext); // Using useContext directly
+    const { journals, createJournalEntry } = useContext(JournalContext); 
 
     const handleEntryCreated = (title, content, category) => {
         createJournalEntry(title, content, category);

@@ -10,7 +10,7 @@ export default function LoginPage() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    login(email, password, () => navigate('/journals')); 
+    login(email, password, () => navigate('/dashboard')); 
 
     setEmail("");
     setPassword("");

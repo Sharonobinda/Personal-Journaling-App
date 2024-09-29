@@ -69,6 +69,27 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({'access_token': access_token}), 200
 
+
+# Fetch Current User
+@app.route('/current-user', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    user_data = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        # You can add other fields as needed
+    }
+
+    return jsonify(user_data), 200
+
+
 # Create Journal Entry
 @app.route('/journal', methods=['POST'])
 @jwt_required()
