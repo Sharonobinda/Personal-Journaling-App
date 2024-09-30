@@ -199,7 +199,28 @@ def reset_password(token):
 
     return jsonify({'message': 'Password updated successfully'}), 200
 
-# Update Username/Password
+#fetch profile
+@app.route('/profile', methods=['GET'])
+@jwt_required()
+def profile():
+    current_user_id = get_jwt_identity()  # Get the user's ID from the JWT token
+
+    # Fetch the user from the database based on their ID
+    user = User.query.get(current_user_id)
+
+    if user:
+        return jsonify({
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+            }
+        }), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
+
+
+# Update profile
 @app.route('/update-profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
@@ -212,9 +233,6 @@ def update_profile():
     data = request.get_json()
     if 'username' in data:
         user.username = data['username']
-
-    if 'password' in data:
-        user.password = generate_password_hash(data['password'])
 
     db.session.commit()
     return jsonify({'message': 'Profile updated successfully'}), 200

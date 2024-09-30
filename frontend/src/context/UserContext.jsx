@@ -76,6 +76,27 @@ export const UserProvider = ({ children }) => {
       });
   };
 
+  // Fetch user profile details when authenticated
+  useEffect(() => {
+    if (auth_token) {
+      fetch('/api/profile', {
+        headers: {
+          Authorization: `Bearer ${auth_token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setCurrentUser(data.user); // Assuming the response contains user data
+          setIsAuthenticated(true);
+        })
+        .catch(() => {
+          setIsAuthenticated(false);
+          localStorage.removeItem('access_token');
+        });
+    }
+  }, [auth_token]);
+
+
   // Update user profile
   const updateUser = (username, password) => {
     fetch(`http://127.0.0.1:5000/update-profile`, {

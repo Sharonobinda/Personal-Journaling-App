@@ -17,27 +17,21 @@ const Layout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F0F0F0] flex flex-col">
-            {/* Header/NavBar */}
-            <header className="bg-white shadow-md p-4 flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Journal List</h1>
-                <nav>
-                    <ul className="flex space-x-4">
+        // Wrap everything in a single enclosing tag
+        <>
+            <nav>
+                <ul className="flex space-x-4">
+                    <li>
+                        <Link to="/profile" className="text-lg text-gray-700 hover:text-gray-900">Profile</Link>
+                    </li>
+                    {/* Only show Journals if the user is logged in */}
+                    {user && (
                         <li>
-                            <Link to="/" className="text-lg text-gray-700 hover:text-gray-900">Home</Link>
+                            <Link to="/journals" className="text-lg text-gray-700 hover:text-gray-900">My Journals</Link>
                         </li>
-                        <li>
-                            <Link to="/profile" className="text-lg text-gray-700 hover:text-gray-900">Profile</Link>
-                        </li>
-                        {/* Only show Journals if the user is logged in */}
-                        {user && (
-                            <li>
-                                <Link to="/journal" className="text-lg text-gray-700 hover:text-gray-900">My Journals</Link>
-                            </li>
-                        )}
-                    </ul>
-                </nav>
-            </header>
+                    )}
+                </ul>
+            </nav>
 
             {/* Main Content Area */}
             <div className="flex-1 p-8">
@@ -60,9 +54,8 @@ const Layout = () => {
 
             {/* Toast Notifications */}
             <ToastContainer />
-        </div>
+        </>
     );
 };
 
 export default Layout;
-

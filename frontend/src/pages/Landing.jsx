@@ -14,7 +14,7 @@ const Landing = () => {
     e.preventDefault();
     if (login) {
       login(email, password, () => {
-        navigate('/dashboard'); // Navigate to the dashboard after successful login
+        navigate('/journals'); // Navigate to the dashboard after successful login
       });
 
       // Clear form fields
