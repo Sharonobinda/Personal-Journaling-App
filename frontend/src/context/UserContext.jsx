@@ -9,7 +9,7 @@ export const UserProvider = ({ children }) => {
     localStorage.getItem('access_token') ? localStorage.getItem('access_token') : null
   );
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [current-user, setCurrent-user] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // Corrected here
   const [onChange, setOnChange] = useState(false);
   const nav = useNavigate();
 
@@ -77,7 +77,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // Update user profile
-  const update_user = (username, password) => {
+  const updateUser = (username, password) => {
     fetch(`http://127.0.0.1:5000/update-profile`, {
       method: 'PUT',
       body: JSON.stringify({
@@ -93,7 +93,7 @@ export const UserProvider = ({ children }) => {
       .then((res) => {
         if (res.success) {
           toast.success(res.success);
-          setCurrent-user((prevState) => ({
+          setCurrentUser((prevState) => ({
             ...prevState,
             username,
             password,
@@ -124,7 +124,7 @@ export const UserProvider = ({ children }) => {
           localStorage.removeItem('access_token');
           setAuth_token(null);
           setIsAuthenticated(false);
-          setCurrent-user(null);
+          setCurrentUser(null);
           setOnChange(!onChange);
           toast.success(res.success);
           nav('/login');
@@ -150,13 +150,13 @@ export const UserProvider = ({ children }) => {
         .then((res) => res.json())
         .then((res) => {
           if (res.email) {
-            setCurrent-user(res);
+            setCurrentUser(res); // Corrected here
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem('access_token');
             setAuth_token(null);
             setIsAuthenticated(false);
-            setCurrent-user(null);
+            setCurrentUser(null);
             nav('/login');
           }
         })
@@ -170,11 +170,11 @@ export const UserProvider = ({ children }) => {
 
   const contextData = {
     auth_token,
-    current-user,
-    setCurrent-user,
+    currentUser, // Corrected here
+    setCurrentUser, // Corrected here
     register,
     login,
-    update_user,
+    updateUser, // Corrected here
     logout,
     isAuthenticated,
   };

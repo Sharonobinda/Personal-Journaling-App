@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { UserContext } from './context/UserContext'; // Assuming UserContext is used for authentication
+import { UserContext } from './context/UserContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Layout = () => {
@@ -17,35 +17,52 @@ const Layout = () => {
     };
 
     return (
-        <div className="bg-[#B9B9B7] min-h-screen flex flex-col">
-            <nav className='flex items-center justify-between px-4 sm:px-6 md:px-10 lg:px-40 pt-10 relative'>
-                {/* Removed the empty Link element entirely */}
-                
-                <button onClick={toggleMenu} className="md:hidden text-black ml-auto">
-                    <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                </button>
-
-                <div className={`absolute inset-x-0 top-16 bg-[#B9B9B7] md:static md:flex md:space-x-8 p-4 text-white ${menuOpen ? 'block' : 'hidden'} md:block`}>
-                    <ul className="flex flex-col md:flex-row md:space-x-8 ml-auto">
+        <div className="min-h-screen bg-[#F0F0F0] flex flex-col">
+            {/* Header/NavBar */}
+            <header className="bg-white shadow-md p-4 flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Journal List</h1>
+                <nav>
+                    <ul className="flex space-x-4">
+                        <li>
+                            <Link to="/" className="text-lg text-gray-700 hover:text-gray-900">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/profile" className="text-lg text-gray-700 hover:text-gray-900">Profile</Link>
+                        </li>
                         {/* Only show Journals if the user is logged in */}
                         {user && (
                             <li>
-                                <Link to="/journal" onClick={closeMenu} className="text-bold text-xl block py-2 px-4 rounded hover:text-gray-400 hover:bg-green-800 dark:text-green-900">
-                                    Journal
-                                </Link>
+                                <Link to="/journal" className="text-lg text-gray-700 hover:text-gray-900">My Journals</Link>
                             </li>
                         )}
                     </ul>
+                </nav>
+            </header>
+
+            {/* Main Content Area */}
+            <div className="flex-1 p-8">
+                <div className="relative">
+                    <Outlet />
+                    
+                    {/* Floating Circle Button for Creating New Journal */}
+                    {user && (
+                        <Link
+                            to="/create-journal"
+                            className="fixed bottom-10 right-10 bg-green-600 text-white rounded-full p-5 shadow-lg hover:bg-green-700 transition duration-300 ease-in-out"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </Link>
+                    )}
                 </div>
-            </nav>
-            <main className="flex-grow p-4">
-                <ToastContainer />
-                <Outlet />
-            </main>
+            </div>
+
+            {/* Toast Notifications */}
+            <ToastContainer />
         </div>
     );
 };
 
 export default Layout;
+
