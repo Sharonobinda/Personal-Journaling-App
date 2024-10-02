@@ -1,77 +1,123 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 
 export const JournalContext = createContext();
 
-export const JournalProvider = ({ children }) => {
-    const [journals, setJournals] = useState([]);
-    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
-
-    useEffect(() => {
-      if (authToken) {
-          fetchJournals();  // Fetch journals after login
-      }
-  }, [authToken]);
+export const JournalProvider = ({ children }) => { // Change ProductProvider to JournalProvider
+  const [authToken, setAuthToken] = useState(localStorage.getItem('access_token'));
+  const [journals, setJournals] = useState([]);
 
   const fetchJournals = () => {
-      fetch('http://localhost:5000/journals', {
-          headers: {
-              Authorization: `Bearer ${authToken}`,
-          },
+    console.log('Fetching journals for user...');
+    fetch(`http://localhost:5000/journals`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Include the auth token to identify the user
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.text().then((text) => {
+            throw new Error(`Network response was not ok: ${response.status} ${text}`);
+          });
+        }
+        return response.json();
       })
-      .then((response) => response.json())
-      .then((data) => setJournals(data))  // Store the journals in state
+      .then((data) => {
+        console.log('Fetched journals:', data);
+        setJournals(data); // Set fetched journals in the state
+      })
       .catch((error) => console.error('Error fetching journals:', error));
   };
   
+  const handleError = (response) => {
+    return response.json().then((errorData) => {
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorData,
+      });
+      throw new Error(errorData.error || 'Unknown error');
+    });
+  };
 
-  const createJournalEntry = (title, content, category) => {
-    fetch('http://127.0.0.1:5000/journal', {  // Change to singular 'journal'
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ title, content, category }),
+  const createJournalEntry = (journalData) => {
+    console.log('Creating journal:', journalData);
+    fetch(`http://127.0.0.1:5000/journal`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(journalData),
     })
-    .then(() => fetchJournals())
-    .catch((error) => console.error('Error creating journal entry:', error));
+      .then((response) => {
+        if (!response.ok) {
+          return handleError(response);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Journal created:', data);
+        fetchJournals();
+      })
+      .catch((error) => console.error('Error creating journal:', error));
+  };
+
+  const updateJournalEntry = (journalId, updatedData) => {
+    console.log(`Updating journal ID ${journalId}:`, updatedData);
+    fetch(`http://127.0.0.1:5000/journals/${journalId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(updatedData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return handleError(response);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Journal updated:', data);
+        fetchJournals();
+      })
+      .catch((error) => console.error('Error updating journal:', error));
+  };
+
+  const deleteJournalEntry = (journalId) => {
+    console.log(`Deleting journal ID ${journalId}...`);
+    fetch(`http://127.0.0.1:5000/journals/${journalId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return handleError(response);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Journal deleted:', data);
+        fetchJournals();
+      })
+      .catch((error) => console.error('Error deleting journal:', error));
+  };
+
+  return (
+    <JournalContext.Provider value={{
+      journals,
+      authToken,
+      setAuthToken,
+      fetchJournals,
+      createJournalEntry,
+      updateJournalEntry,
+      deleteJournalEntry,
+    }}>
+      {children}
+    </JournalContext.Provider>
+  );
 };
 
-
-    const updateJournalEntry = (id, title, content, category) => {
-        fetch(`http://127.0.0.1:5000/journals/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${authToken}`,
-            },
-            body: JSON.stringify({ title, content, category }),
-        })
-            .then(() => fetchJournals())
-            .catch((error) => console.error('Error updating journal entry:', error));
-    };
-
-    const deleteJournalEntry = (id) => {
-        fetch(`http://127.0.0.1:5000/journals/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${authToken}`,
-            },
-        })
-            .then(() => fetchJournals())
-            .catch((error) => console.error('Error deleting journal entry:', error));
-    };
-
-    return (
-        <JournalContext.Provider
-            value={{
-                journals,
-                createJournalEntry,
-                updateJournalEntry,
-                deleteJournalEntry,
-            }}
-        >
-            {children}
-        </JournalContext.Provider>
-    );
-};

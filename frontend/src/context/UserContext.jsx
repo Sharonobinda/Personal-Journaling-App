@@ -9,9 +9,29 @@ export const UserProvider = ({ children }) => {
     localStorage.getItem('access_token') ? localStorage.getItem('access_token') : null
   );
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Corrected here
+  const [currentUser, setCurrentUser] = useState(null);
   const [onChange, setOnChange] = useState(false);
   const nav = useNavigate();
+
+  // Fetch journals after login
+  const fetchJournals = () => {
+    fetch('http://localhost:5000/journals', {
+      headers: {
+        Authorization: `Bearer ${auth_token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.journals) {
+          // Handle the fetched journals data
+          toast.success('Journals fetched successfully');
+          // You might want to set journals in state here, depending on your application.
+        }
+      })
+      .catch((error) => {
+        toast.error(`Error fetching journals: ${error.message}`);
+      });
+  };
 
   // Register user
   const register = (username, email, password, onSuccess) => {
@@ -66,6 +86,7 @@ export const UserProvider = ({ children }) => {
           setAuth_token(res.access_token);
           setIsAuthenticated(true);
           toast.success('Logged in successfully');
+          fetchJournals(); // Fetch journals after successful login
           if (onSuccess) onSuccess();
         } else {
           toast.error(res.error || 'Login failed');
@@ -95,7 +116,6 @@ export const UserProvider = ({ children }) => {
         });
     }
   }, [auth_token]);
-
 
   // Update user profile
   const updateUser = (username, password) => {
@@ -160,6 +180,7 @@ export const UserProvider = ({ children }) => {
       });
   };
 
+  // Fetch current user when auth_token changes
   useEffect(() => {
     if (auth_token) {
       fetch(`http://127.0.0.1:5000/current-user`, {
@@ -171,7 +192,7 @@ export const UserProvider = ({ children }) => {
         .then((res) => res.json())
         .then((res) => {
           if (res.email) {
-            setCurrentUser(res); // Corrected here
+            setCurrentUser(res);
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem('access_token');
@@ -191,11 +212,11 @@ export const UserProvider = ({ children }) => {
 
   const contextData = {
     auth_token,
-    currentUser, // Corrected here
-    setCurrentUser, // Corrected here
+    currentUser,
+    setCurrentUser,
     register,
     login,
-    updateUser, // Corrected here
+    updateUser,
     logout,
     isAuthenticated,
   };

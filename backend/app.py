@@ -7,7 +7,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required,get
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.security import generate_password_hash
-from datetime import timedelta
+from datetime import timedelta, datetime
+
 from models import db, User, JournalEntry
 
 app = Flask(__name__)
@@ -16,7 +17,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///journaling.db"
 app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['JWT_SECRET_KEY'] = 'jwtsecretkey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=72)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -101,6 +102,7 @@ def create_journal():
         title=data['title'],
         content=data['content'],
         category=data['category'],
+        date=datetime.utcnow(),  # Set the current date and time
         user_id=user_id
     )
 

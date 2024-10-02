@@ -1,12 +1,18 @@
-import React, { useState, useContext } from 'react';
-import { UserContext } from '../context/UserContext'; // Import your UserContext for user data
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useEffect, useState, useContext } from 'react';
+import { UserContext } from '../context/UserContext';
+import { JournalContext } from '../context/JournalContext';
+import { useNavigate } from 'react-router-dom';
 
 const JournalList = () => {
-  const [journals, setJournals] = useState([]);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false); // State for profile dropdown
-  const { currentUser, logout } = useContext(UserContext); // Use currentUser instead of user
-  const navigate = useNavigate(); // Initialize navigate
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const { currentUser, logout } = useContext(UserContext);
+  const { journals, fetchJournals } = useContext(JournalContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch journals when the component mounts
+    fetchJournals();
+  }, []);
 
   const handleCreateJournal = () => {
     navigate('/create-journal');
@@ -48,12 +54,11 @@ const JournalList = () => {
             </svg>
           </button>
 
-          {/* Profile Dropdown */}
           {showProfileDropdown && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
               <div className="p-4">
                 <p className="text-gray-900 font-semibold">
-                  Username: {currentUser ? currentUser.username : 'Guest'} {/* Use currentUser */}
+                  Username: {currentUser ? currentUser.username : 'Guest'}
                 </p>
                 <button
                   className="mt-2 w-full bg-red-500 text-white px-4 py-2 rounded focus:outline-none"
@@ -67,17 +72,22 @@ const JournalList = () => {
         </div>
       </div>
 
-      {/* Journal Items */}
       <div>
         {journals.length === 0 ? (
           <p className="text-center text-gray-500 mt-10">No journals added yet</p>
         ) : (
           journals.map((journal) => (
-            <div key={journal.id} className="flex justify-between items-center bg-white p-4 mb-4 border rounded shadow-sm">
+            <div
+              key={journal.id}
+              className="flex justify-between items-center bg-white p-4 mb-4 border rounded shadow-sm"
+            >
               <div>
                 <h3 className="text-lg font-semibold">{journal.title}</h3>
-                <p className="text-gray-500 text-sm">{journal.date}</p>
-                <span className="text-xs text-gray-500">{journal.type}</span>
+                <p className="text-gray-500 text-sm">{journal.content}</p>
+                <span className="text-xs text-gray-500">{journal.category}</span>
+                <div className="text-xs text-gray-400 mt-1">
+                  {new Date(journal.date).toLocaleDateString()} {/* Format the date */}
+                </div>
               </div>
               <div className="flex space-x-4">
                 <button className="text-blue-500 focus:outline-none">✏️</button>
