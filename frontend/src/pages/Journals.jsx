@@ -2,20 +2,20 @@ import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import { JournalContext } from '../context/JournalContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Import toast for notifications
 
 const JournalList = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { currentUser, logout } = useContext(UserContext);
-  const { journals, fetchJournals } = useContext(JournalContext);
+  const { journals, fetchJournals, deleteJournalEntry } = useContext(JournalContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch journals when the component mounts
-    fetchJournals();
+    fetchJournals(); // Fetch journals when component mounts
   }, []);
 
   const handleCreateJournal = () => {
-    navigate('/create-journal');
+    navigate('/create-journal'); // Navigate to the journal creation page
   };
 
   const toggleProfileDropdown = () => {
@@ -25,6 +25,19 @@ const JournalList = () => {
   const handleLogout = () => {
     logout();
     navigate('/'); // Redirect to landing page after logout
+  };
+
+  const handleDelete = (journalId) => {
+    if (window.confirm('Are you sure you want to delete this journal entry?')) {
+      deleteJournalEntry(journalId); // Call deleteJournalEntry to delete the journal
+      toast.success('Journal entry deleted successfully.'); // Notify user on success
+    } else {
+      toast.info('Journal entry not deleted.'); // Notify if action is cancelled
+    }
+  };
+
+  const handleEdit = (journalId) => {
+    navigate(`/edit-journal/${journalId}`); // Navigate to edit page with journalId
   };
 
   return (
@@ -86,12 +99,25 @@ const JournalList = () => {
                 <p className="text-gray-500 text-sm">{journal.content}</p>
                 <span className="text-xs text-gray-500">{journal.category}</span>
                 <div className="text-xs text-gray-400 mt-1">
-                  {new Date(journal.date).toLocaleDateString()} {/* Format the date */}
+                  {new Date(journal.date).toLocaleDateString()}
                 </div>
               </div>
               <div className="flex space-x-4">
-                <button className="text-blue-500 focus:outline-none">✏️</button>
-                <button className="text-red-500 focus:outline-none">🗑️</button>
+                {/* Edit button */}
+                <button
+                  className="text-blue-500 focus:outline-none"
+                  onClick={() => handleEdit(journal.id)}
+                >
+                  ✏️
+                </button>
+
+                {/* Delete button */}
+                <button
+                  className="text-red-500 focus:outline-none"
+                  onClick={() => handleDelete(journal.id)}
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           ))

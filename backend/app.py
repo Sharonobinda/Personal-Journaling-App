@@ -138,16 +138,16 @@ def edit_journal(journal_id):
         return jsonify({'error': 'Journal entry not found'}), 404
 
     data = request.get_json()
-    journal.title = data['title']
-    journal.content = data['content']
-    journal.category = data['category']
+    journal.title = data.get('title', journal.title)
+    journal.content = data.get('content', journal.content)
+    journal.category = data.get('category', journal.category)
 
     db.session.commit()
-
     return jsonify({'message': 'Journal entry updated'}), 200
 
+
 # Delete Journal Entry
-@app.route('/journal/<int:journal_id>', methods=['DELETE'])
+@app.route('/journals/<int:journal_id>', methods=['DELETE'])
 @jwt_required()
 def delete_journal(journal_id):
     user_id = get_jwt_identity()
@@ -158,7 +158,6 @@ def delete_journal(journal_id):
 
     db.session.delete(journal)
     db.session.commit()
-
     return jsonify({'message': 'Journal entry deleted'}), 200
 
 # Request Password Reset
