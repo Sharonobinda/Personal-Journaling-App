@@ -79,7 +79,7 @@ export const UserProvider = ({ children }) => {
   // Fetch user profile details when authenticated
   useEffect(() => {
     if (auth_token) {
-      fetch('/api/profile', {
+      fetch('http://127.0.0.1:5000/profile', {
         headers: {
           Authorization: `Bearer ${auth_token}`,
         },
@@ -178,7 +178,7 @@ export const UserProvider = ({ children }) => {
             setAuth_token(null);
             setIsAuthenticated(false);
             setCurrentUser(null);
-            nav('/login');
+            nav('/');
           }
         })
         .catch((error) => {
