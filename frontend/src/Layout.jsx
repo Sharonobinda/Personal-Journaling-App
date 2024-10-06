@@ -21,10 +21,6 @@ const Layout = () => {
         <>
             <nav>
                 <ul className="flex space-x-4">
-                    <li>
-                        <Link to="/profile" className="text-lg text-gray-700 hover:text-gray-900">Profile</Link>
-                    </li>
-                    {/* Only show Journals if the user is logged in */}
                     {user && (
                         <li>
                             <Link to="/journals" className="text-lg text-gray-700 hover:text-gray-900">My Journals</Link>

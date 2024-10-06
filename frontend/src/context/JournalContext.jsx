@@ -39,19 +39,19 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
     });
   };
 
-  const createJournalEntry = (journalData) => {
-    console.log('Creating journal:', journalData);
+  const createJournalEntry = (title, content, category) => {
+    console.log('Creating journal:', { title, content, category });
     fetch(`http://127.0.0.1:5000/journal`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
       },
-      body: JSON.stringify(journalData),
+      body: JSON.stringify({ title, content, category }),
     })
       .then((response) => {
         if (!response.ok) {
-          return handleError(response);
+          return handleError(response); // Handle error using your handleError function
         }
         return response.json();
       })
@@ -61,10 +61,11 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
       })
       .catch((error) => console.error('Error creating journal:', error));
   };
+  
 
   const updateJournalEntry = (journalId, updatedData) => {
     console.log(`Updating journal ID ${journalId}:`, updatedData);
-    fetch(`http://127.0.0.1:5000/journals/${journalId}`, {
+    fetch(`http://127.0.0.1:5000/journal/${journalId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -35,6 +35,9 @@ const CreateJournal = () => {
       <select value={category} onChange={(e) => setCategory(e.target.value)} className="border border-gray-300 rounded p-2 mb-4 w-full">
         <option value="Personal">Personal</option>
         <option value="Work">Work</option>
+        <option value="travel">Travel</option>
+        <option value="health">Health</option>
+        <option value="education">Education</option>
       </select>
       
       <button type="submit" className="bg-blue-500 text-white rounded p-2">Create</button>
