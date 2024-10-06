@@ -69,7 +69,7 @@ const JournalList = () => {
 
           {showProfileDropdown && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-              <div className="p-4">
+              <div className="p-4 justify-between">
                 <p className="text-gray-900 font-semibold">
                   Username: {currentUser ? currentUser.username : 'Guest'}
                 </p>

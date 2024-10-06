@@ -8,6 +8,9 @@ import CreateJournal from './pages/CreateJournal';  // Keep the import
 import EditJournal from './pages/EditJournal';
 import { UserProvider } from './context/UserContext';
 import { JournalProvider } from './context/JournalContext';
+import PasswordResetRequest from './pages/PasswordResetRequest';
+import PasswordReset from './pages/PasswordReset';
+
 
 const App = () => {
     return (
@@ -22,6 +25,8 @@ const App = () => {
                             <Route path="journals" element={<Journals />} />
                             <Route path="create-journal" element={<CreateJournal />} /> {/* Add route for CreateJournal */}
                             <Route path="/edit-journal/:id" element={<EditJournal />} />
+                            <Route path="password-reset-request" element={<PasswordResetRequest />} />
+                            <Route path="password-reset/:token" element={<PasswordReset />} />
                         </Route>
                     </Routes>
                 </JournalProvider>
