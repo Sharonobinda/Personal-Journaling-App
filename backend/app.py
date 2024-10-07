@@ -18,12 +18,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///journaling.db"
 app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['JWT_SECRET_KEY'] = 'jwtsecretkey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=72)
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = '30a47e766060e3'
+app.config['MAIL_PASSWORD'] = '89e8b686d89773'
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your-email-password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEFAULT_SENDER'] = 'obindasharon6@gmail.com'
+
 
 with app.app_context():
     # Serializer for generating secure tokens
@@ -164,41 +166,79 @@ def delete_journal(journal_id):
 @app.route('/request-reset-password', methods=['POST'])
 def request_reset_password():
     data = request.get_json()
-    email = data['email']
-
+    email = data.get('email')
     user = User.query.filter_by(email=email).first()
-
+    
     if not user:
-        return jsonify({'error': 'No account with that email'}), 404
+        return jsonify({"message": "Email not found."}), 404
 
-    token = serializer.dumps(user.email, salt='password-reset-salt')
-    reset_link = url_for('reset_password', token=token, _external=True)
-    subject = "Password Reset Request"
-    body = f'Hi {user.username},\nTo reset your password, click the following link: {reset_link}'
+    token = s.dumps(email, salt='password-reset-salt')
+    reset_url = f'http://localhost:5173/password-reset/{token}'
 
-    msg = Message(subject, recipients=[user.email], body=body)
-    mail.send(msg)
-
-    return jsonify({'message': 'Password reset link sent'}), 200
+    try:
+        send_email(user.email, reset_url)
+        return jsonify({"message": "A password reset link has been sent."}), 200
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        return jsonify({"message": "An error occurred while processing your request."}), 500
 
 # Reset Password
 @app.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
+    if not request.is_json:
+        return jsonify({"error": "Content-Type must be application/json"}), 415
+
     try:
-        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
-    except:
-        return jsonify({'error': 'Invalid or expired token'}), 400
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+    except SignatureExpired:
+        return jsonify({"error": "The reset link has expired"}), 400
+    except BadSignature:
+        return jsonify({"error": "The reset link is invalid"}), 400
+
+    data = request.get_json()
+    new_password = data.get('password')
+
+    if not new_password:
+        return jsonify({"error": "New password is required"}), 400
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({'error': 'User not found'}), 404
+        return jsonify({"error": "User with this email does not exist"}), 404
 
-    data = request.get_json()
-    new_password = data['password']
-    user.password = generate_password_hash(new_password)
+    hashed_password = bcrypt.generate_password_hash(new_password)
+    user.password = hashed_password
     db.session.commit()
 
-    return jsonify({'message': 'Password updated successfully'}), 200
+    return jsonify({"message": "Password has been reset successfully"}), 200
+
+def send_email(to_email, reset_url):
+    subject = "Password Reset Request"
+    content = f"""
+    Hello,
+
+    We have received a request to reset your password. Please follow the reset instructions to 
+    recover your password:
+
+    {reset_url}
+
+    If you did not make this request, contact Support or ignore this email and your password will 
+    remain unchanged.
+
+    Best,
+
+    Journaling App
+    """
+    
+    msg = Message(subject=subject, recipients=[to_email], body=content)
+    
+    try:
+        mail.send(msg)
+        print(f"Email sent successfully to {to_email}.")
+    except Exception as e:
+        print(f"Failed to send email: {str(e)}")
+        raise
+
+    return True
 
 #fetch profile
 @app.route('/profile', methods=['GET'])

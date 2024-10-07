@@ -6,7 +6,7 @@ const PasswordResetRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/request-reset-password', {
+    fetch('http://127.0.0.1:5000/request-reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
