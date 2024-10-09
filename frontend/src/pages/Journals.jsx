@@ -40,6 +40,9 @@ const JournalList = () => {
     navigate(`/edit-journal/${journalId}`); // Navigate to edit page with journalId
   };
 
+  // Sort journals by date in descending order (latest first)
+  const sortedJournals = journals.sort((a, b) => new Date(b.date) - new Date(a.date));
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -86,10 +89,10 @@ const JournalList = () => {
       </div>
 
       <div>
-        {journals.length === 0 ? (
+        {sortedJournals.length === 0 ? (
           <p className="text-center text-gray-500 mt-10">No journals added yet</p>
         ) : (
-          journals.map((journal) => (
+          sortedJournals.map((journal) => (
             <div
               key={journal.id}
               className="flex justify-between items-center bg-white p-4 mb-4 border rounded shadow-sm"
