@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import {server_url} from "../../config"
 
 const PasswordResetRequest = () => {
   const [email, setEmail] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://127.0.0.1:5000/request-reset-password`, {
+    fetch(`${server_url}/request-reset-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

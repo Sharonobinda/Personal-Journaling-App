@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {server_url} from "../../config"
 
 const PasswordReset = () => {
   const { token } = useParams();
@@ -19,7 +20,7 @@ const PasswordReset = () => {
 
     setLoading(true);
 
-    fetch(`http://127.0.0.1:5000/reset-password/${token}`, {
+    fetch(`${server_url}/reset-password/${token}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

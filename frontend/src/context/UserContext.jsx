@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import {server_url} from "../../config"
 
 export const UserContext = createContext();
 
@@ -15,7 +16,7 @@ export const UserProvider = ({ children }) => {
 
   // Fetch journals after login
   const fetchJournals = () => {
-    fetch('http://localhost:5000/journals', {
+    fetch('${server_url}/journals', {
       headers: {
         Authorization: `Bearer ${auth_token}`,
       },
@@ -35,7 +36,7 @@ export const UserProvider = ({ children }) => {
 
   // Register user
   const register = (username, email, password, onSuccess) => {
-    fetch(`http://127.0.0.1:5000/register`, {
+    fetch(`${server_url}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ export const UserProvider = ({ children }) => {
 
   // Login user
   const login = (email, password, onSuccess) => {
-    fetch(`http://127.0.0.1:5000/login`, {
+    fetch(`${server_url}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ export const UserProvider = ({ children }) => {
   // Fetch user profile details when authenticated
   useEffect(() => {
     if (auth_token) {
-      fetch('http://127.0.0.1:5000/profile', {
+      fetch('${server_url}/profile', {
         headers: {
           Authorization: `Bearer ${auth_token}`,
         },
@@ -119,7 +120,7 @@ export const UserProvider = ({ children }) => {
 
   // Update user profile
   const updateUser = (username, password) => {
-    fetch(`http://127.0.0.1:5000/update-profile`, {
+    fetch(`${server_url}/update-profile`, {
       method: 'PUT',
       body: JSON.stringify({
         username,
@@ -152,7 +153,7 @@ export const UserProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    fetch(`http://127.0.0.1:5000/logout`, {
+    fetch(`${server_url}/logout`, {
       method: 'DELETE',
       headers: {
         'Content-type': 'application/json',
@@ -183,7 +184,7 @@ export const UserProvider = ({ children }) => {
   // Fetch current user when auth_token changes
   useEffect(() => {
     if (auth_token) {
-      fetch(`http://127.0.0.1:5000/current-user`, {
+      fetch(`${server_url}/current-user`, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${auth_token}`,

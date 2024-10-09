@@ -1,4 +1,5 @@
 import React, { createContext, useState } from 'react';
+import {server_url} from "../../config"
 
 export const JournalContext = createContext();
 
@@ -8,7 +9,7 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
 
   const fetchJournals = () => {
     console.log('Fetching journals for user...');
-    fetch(`http://localhost:5000/journals`, {
+    fetch(`${server_url}/journals`, {
       headers: {
         Authorization: `Bearer ${authToken}`, // Include the auth token to identify the user
       },
@@ -41,7 +42,7 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
 
   const createJournalEntry = (title, content, category) => {
     console.log('Creating journal:', { title, content, category });
-    fetch(`http://127.0.0.1:5000/journal`, {
+    fetch(`${server_url}/journal`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
 
   const updateJournalEntry = (journalId, updatedData) => {
     console.log(`Updating journal ID ${journalId}:`, updatedData);
-    fetch(`http://127.0.0.1:5000/journal/${journalId}`, {
+    fetch(`${server_url}/journal/${journalId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
 
   const deleteJournalEntry = (journalId) => {
     console.log(`Deleting journal ID ${journalId}...`);
-    fetch(`http://127.0.0.1:5000/journals/${journalId}`, {
+    fetch(`${server_url}/journals/${journalId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${authToken}`,
