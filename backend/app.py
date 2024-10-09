@@ -7,13 +7,21 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required,get
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from datetime import timedelta, datetime
-
 from models import db, User, JournalEntry
+import random, os
+from dotenv import load_dotenv, dotenv_values
+
+load_dotenv()
+
+postgres_pwd = os.getenv("POSTGRES_PWD")
+
+#print(postgres_pwd)
 
 app = Flask(__name__)
 
 # Configurations
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///journaling.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://journal_db_wep0_user:{postgres_pwd}"
+#"sqlite:///journaling.db"
 app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['JWT_SECRET_KEY'] = 'jwtsecretkey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=72)

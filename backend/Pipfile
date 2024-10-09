@@ -12,6 +12,9 @@ flask-cors = "*"
 flask-jwt-extended = "*"
 faker = "*"
 flask-mail = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
+gunicorn = "*"
 
 [dev-packages]
 
