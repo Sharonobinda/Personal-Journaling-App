@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import journalImage from '../images/journal image.jpg';
+import journalImage3 from '../images/journal image3.jpg';
 import { UserContext } from '../context/UserContext';
 import { toast } from 'react-toastify';
 
@@ -28,7 +28,7 @@ const Landing = () => {
   return (
     <div
       className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${journalImage})` }} // Use the imported image
+      style={{ backgroundImage: `url(${journalImage3})` }} // Use the imported image
     >
       <div className="flex flex-col justify-center items-center w-full px-4 bg-opacity-80 rounded-lg p-6 shadow-lg">
         {/* Title Section */}

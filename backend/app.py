@@ -6,7 +6,6 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required,get_jwt, get_jwt_identity
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
-from werkzeug.security import generate_password_hash
 from datetime import timedelta, datetime
 
 from models import db, User, JournalEntry
@@ -43,35 +42,62 @@ mail = Mail(app)
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    username = data['username']
-    email = data['email']
-    password = data['password']
 
+    # Validate username
+    username = data.get('username')
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+    if User.query.filter_by(username=username).first():
+        return jsonify({"error": "Username already exists"}), 400
+
+    # Validate email
+    email = data.get('email')
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
     if User.query.filter_by(email=email).first():
-        return jsonify({'error': 'Email already exists'}), 400
+        return jsonify({"error": "Email already exists"}), 400
 
-    user = User(username=username, email=email)
-    user.set_password(password)
-    db.session.add(user)
+    # Validate password
+    password = data.get('password')
+    if not password:
+        return jsonify({"error": "Password is required"}), 400
+
+    # Hash the password with bcrypt
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    # Create the new user
+    new_user = User(
+        username=username,
+        email=email,
+        password=hashed_password
+    )
+
+    # Add user to the database
+    db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'User registered successfully'}), 201
+    return jsonify({"message": "User registered successfully"}), 201
 
 # User Login
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data['email']
-    password = data['password']
+@app.route("/login", methods=["POST"])
+def login_user():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
 
     user = User.query.filter_by(email=email).first()
 
-    if not user or not user.check_password(password):
-        return jsonify({'error': 'Invalid credentials'}), 401
-
-    access_token = create_access_token(identity=user.id)
-    return jsonify({'access_token': access_token}), 200
-
+    if user:
+        try:
+            if bcrypt.check_password_hash(user.password, password):
+                access_token = create_access_token(identity=user.id)
+                return jsonify({"access_token": access_token}), 200
+            else:
+                return jsonify({"error": "Wrong credentials"}), 401
+        except ValueError as e:
+            print(f"Error verifying password hash: {e}")
+            return jsonify({"error": "Internal server error"}), 500
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 # Fetch Current User
 @app.route('/current-user', methods=['GET'])
@@ -290,6 +316,20 @@ def logout():
     jti = get_jwt()["jti"]
     BLACKLIST.add(jti)
     return jsonify({"success": "Successfully logged out"}), 200
+
+
+# Error handling
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Not found"}), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
 
 
 if __name__ == '__main__':

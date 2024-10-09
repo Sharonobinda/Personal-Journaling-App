@@ -168,7 +168,7 @@ export const UserProvider = ({ children }) => {
           setCurrentUser(null);
           setOnChange(!onChange);
           toast.success(res.success);
-          nav('/login');
+          nav('/');
         } else if (res.error) {
           toast.error(res.error);
         } else {

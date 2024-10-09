@@ -43,7 +43,7 @@ const JournalList = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-serif">Personal Journals</h1>
+        <h1 className="text-2xl font-serif">My Journals</h1>
         <button
           className="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center focus:outline-none"
           onClick={handleCreateJournal}

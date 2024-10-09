@@ -40,7 +40,7 @@ const PasswordResetRequest = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="shadow-sm bg-gray-50 border border-green-900 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-green-900 block w-full p-2.5"
-              placeholder="fashion@finesse.co.ke"
+              placeholder="journal@app.co.ke"
             />
           </div>
           <button
