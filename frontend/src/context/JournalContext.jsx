@@ -41,29 +41,32 @@ export const JournalProvider = ({ children }) => { // Change ProductProvider to 
   };
 
   const createJournalEntry = (title, content, category) => {
-    console.log('Creating journal:', { title, content, category });
     fetch(`${server_url}/journal`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`, // The token is included for authentication
       },
-      body: JSON.stringify({ title, content, category }),
+      body: JSON.stringify({ 
+        title, 
+        content, 
+        category 
+      }), // Ensure that the keys match what the backend expects
     })
-      .then((response) => {
-        if (!response.ok) {
-          return handleError(response); // Handle error using your handleError function
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Journal created:', data);
-        fetchJournals();
-      })
-      .catch((error) => console.error('Error creating journal:', error));
+    .then(response => {
+      if (!response.ok) {
+        return handleError(response); // Handle errors if response is not ok
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Journal created:', data);
+      fetchJournals(); // Re-fetch the journals after a new one is created
+    })
+    .catch(error => console.error('Error creating journal:', error));
   };
   
-
+  
   const updateJournalEntry = (journalId, updatedData) => {
     console.log(`Updating journal ID ${journalId}:`, updatedData);
     fetch(`${server_url}/journal/${journalId}`, {

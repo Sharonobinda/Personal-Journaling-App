@@ -12,6 +12,7 @@ const CreateJournal = () => {
     createJournalEntry(title, content, category); // Call the function to create the journal entry
     setTitle(''); // Clear the input fields
     setContent('');
+    setCategory('');
   };
 
   return (
